@@ -40,25 +40,21 @@ describe Paperclip::Storage::Eitheror do
   end
 
   describe '#exists?' do
+    subject(:avatar) { user.avatar }
+
     context 'when attachment is on "either"' do
       before { FileUtils.cp(source_image_path, primary_image_path) }
-      it 'returns true' do
-        expect(user.avatar.exists?).to be true
-      end
+      it { expect(avatar.exists?).to be_truthy }
     end
 
     context 'when attachment is on "or"' do
       before { FileUtils.cp(source_image_path, fallback_image_path) }
-      it 'returns true' do
-        expect(user.avatar.exists?).to be true
-      end
+      it { expect(avatar.exists?).to be_truthy }
     end
 
     context "when attachment isn't anywhere" do
-      it 'returns false' do
-        expect(user.avatar.exists?).to be false
+      it { expect(avatar.exists?).to be_falsy }
       end
-    end
   end
 
   context 'when deleting' do
