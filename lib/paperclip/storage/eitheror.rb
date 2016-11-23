@@ -16,16 +16,19 @@ module Paperclip
         storage = usable_storage
         storage.instance_variable_set(:@queued_for_write, @queued_for_write)
         storage.flush_writes
+
+        @queued_for_write = {}
       end
 
       def flush_deletes
-        storage = usable_storage
-        storage.flush_deletes
+      end
+
+      def method_missing method, *args
+        usable_storage.send(method, *args)
       end
 
       private
       def usable_storage
-
         either_exists = @either.exists?
         or_exists = @or.exists?
 
