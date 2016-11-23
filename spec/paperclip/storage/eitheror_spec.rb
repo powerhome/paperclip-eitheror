@@ -148,4 +148,16 @@ describe Paperclip::Storage::Eitheror do
       expect(avatar.an_unknown_method).to eq 'some result'
     end
   end
+
+  context 'when "syncing" an attachment' do
+    before { FileUtils.cp(source_image_path, fallback_image_path) }
+
+    it 'copies asset from the "or" over to the "either" storage' do
+      synced = user.avatar.sync
+
+      expect(synced).to be_truthy
+      expect(user.avatar.path).to match /primary_storage/
+      expect(File.exists? user.avatar.path).to be_truthy
+    end
+  end
 end
