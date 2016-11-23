@@ -5,6 +5,8 @@ describe Paperclip::Storage::Eitheror do
   after(:each) do
     User.delete_all
     File.delete('spec/primary_storage/users/avatars/original/image.jpg') if File.exists?('spec/primary_storage/users/avatars/original/image.jpg')
+
+    File.delete('spec/fallback_storage/users/avatars/original/image.jpg') if File.exists?('spec/fallback_storage/users/avatars/original/image.jpg')
   end
 
   context 'when creating a new attachment' do
@@ -15,6 +17,23 @@ describe Paperclip::Storage::Eitheror do
       expect(File.exists? user.avatar.path).to be true
     end
   end
+
+  context 'when deleting' do
+    it 'deletes from both storages' do
+      user = User.create avatar: File.open('spec/image.jpg')
+      primary_storage_path = 'spec/primary_storage/users/avatars/original/image.jpg'
+      fallback_storage_path = 'spec/fallback_storage/users/avatars/original/image.jpg'
+      FileUtils.cp(primary_storage_path, fallback_storage_path)
+
+      expect(File.exists?(user.avatar.path)).to be true
+
+      user.destroy
+
+      expect(File.exists?(primary_storage_path)).to be false
+      expect(File.exists?(fallback_storage_path)).to be false
+    end
+  end
+
 
   context 'when "either" is not available' do
     it 'fallsback to "or" storage' do

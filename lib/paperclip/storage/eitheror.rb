@@ -21,6 +21,23 @@ module Paperclip
       end
 
       def flush_deletes
+        all_storages.each do |storage|
+          storage.instance_variable_set(:@queued_for_delete, @queued_for_delete)
+          storage.flush_deletes
+        end
+
+        @queued_for_delete = []
+      end
+
+      def queue_some_for_delete(*styles)
+        @queued_for_delete += styles.flatten.uniq.map do |style|
+          all_storages.map { |s| s.path(style) if s.exists?(style) }
+        end.flatten.compact
+      end
+
+      def queue_all_for_delete
+        queue_some_for_delete([:original, *styles.keys].uniq)
+        super
       end
 
       def method_missing method, *args
@@ -28,6 +45,10 @@ module Paperclip
       end
 
       private
+      def all_storages
+        [@either, @or]
+      end
+
       def usable_storage
         either_exists = @either.exists?
         or_exists = @or.exists?
