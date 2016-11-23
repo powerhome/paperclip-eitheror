@@ -69,6 +69,18 @@ describe Paperclip::Storage::Eitheror do
     end
   end
 
+  context 'when "either" is available' do
+    it 'deletes unknown call to "either" storage' do
+      either_storage = double
+      allow(either_storage).to receive(:exists?).and_return true
+      expect(either_storage).to receive(:some_unknown_method).and_return('some response')
+
+      user.avatar.instance_variable_set(:@either, either_storage)
+
+      expect(user.avatar.some_unknown_method).to eq 'some response'
+    end
+  end
+
   context 'when "either" is not available' do
     context 'but "or" is' do
 
@@ -80,13 +92,14 @@ describe Paperclip::Storage::Eitheror do
       end
     end
 
-    it 'delegates calls to "or" storage' do
+    it 'delegates unknown calls to "or" storage' do
       or_storage = double
       allow(or_storage).to receive(:exists?).and_return true
-      expect(or_storage).to receive(:public_url).and_return('a public url')
+      expect(or_storage).to receive(:an_unknown_method).and_return('some result')
+
       user.avatar.instance_variable_set(:@or, or_storage)
 
-      expect(user.avatar.public_url).to eq 'a public url'
+      expect(user.avatar.an_unknown_method).to eq 'some result'
     end
   end
 end
