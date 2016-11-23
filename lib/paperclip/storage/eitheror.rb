@@ -12,6 +12,10 @@ module Paperclip
         usable_storage.path(style_name)
       end
 
+      def url(style_name = default_style, options = {})
+        usable_storage.url(style_name, options)
+      end
+
       def flush_writes
         storage = usable_storage
         storage.instance_variable_set(:@queued_for_write, @queued_for_write)

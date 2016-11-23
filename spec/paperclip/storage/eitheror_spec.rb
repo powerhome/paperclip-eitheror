@@ -18,6 +18,7 @@ describe Paperclip::Storage::Eitheror do
       user = User.create avatar: File.open('spec/image.jpg')
 
       expect(user.avatar.path).to match /primary_storage/
+      expect(user.avatar.url).to match /primary_storage/
       expect(File.exists? user.avatar.path).to be true
     end
   end
@@ -41,6 +42,7 @@ describe Paperclip::Storage::Eitheror do
   context 'when "either" is not available' do
     it 'fallsback to "or" storage' do
       expect(fallback_user.avatar.path).to match /fallback_storage/
+      expect(fallback_user.avatar.url).to match /fallback/
     end
 
     it 'delegates calls to "or" storage' do

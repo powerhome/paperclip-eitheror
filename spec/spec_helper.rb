@@ -30,7 +30,7 @@ class User < ActiveRecord::Base
     either: {
       storage: :filesystem,
       path: "spec/primary_storage/:class/:attachment/:style/:filename",
-      url: "/uploads/:class/:attachment/:style/:filename"
+      url: "/primary_storage/:class/:attachment/:style/:filename"
     },
     or: {
       storage: :filesystem,
