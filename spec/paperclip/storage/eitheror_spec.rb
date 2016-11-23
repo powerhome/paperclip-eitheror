@@ -1,6 +1,10 @@
 require 'spec_helper'
 
 describe Paperclip::Storage::Eitheror do
+  let(:fallback_user) do
+    ActiveRecord::Base.connection.execute("INSERT into users (id, avatar_file_name, avatar_content_type) values (999, 'fallback.png', 'image/png')")
+    User.find(999)
+  end
 
   after(:each) do
     User.delete_all
@@ -34,7 +38,6 @@ describe Paperclip::Storage::Eitheror do
     end
   end
 
-
   context 'when "either" is not available' do
     it 'fallsback to "or" storage' do
       expect(fallback_user.avatar.path).to match /fallback_storage/
@@ -50,11 +53,4 @@ describe Paperclip::Storage::Eitheror do
       expect(user.avatar.public_url).to eq 'a public url'
     end
   end
-end
-
-private
-
-def fallback_user
-  ActiveRecord::Base.connection.execute("INSERT into users (id, avatar_file_name, avatar_content_type) values (999, 'fallback.png', 'image/png')")
-  User.find(999)
 end
