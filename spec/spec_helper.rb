@@ -4,9 +4,7 @@ require "paperclip-eitheror"
 require 'active_record'
 require 'paperclip'
 
-ActiveRecord::Base.establish_connection(
-adapter: "sqlite3", database: ":memory:"
-)
+ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
 
 ActiveRecord::Schema.suppress_messages do
   ActiveRecord::Schema.define version: 0 do
@@ -29,13 +27,13 @@ class User < ActiveRecord::Base
     storage: :eitheror,
     either: {
       storage: :filesystem,
-      path: "spec/primary_storage/:class/:attachment/:style/:filename",
-      url: "/primary_storage/:class/:attachment/:style/:filename"
+      path: "spec/primary_storage/:filename",
+      url: "/url/primary_storage/:filename"
     },
     or: {
       storage: :filesystem,
-      path: "spec/fallback_storage/:class/:attachment/:style/:filename",
-      url: "/fallback/:class/:attachment/:style/:filename"
+      path: "spec/fallback_storage/:filename",
+      url: "/url/fallback_storage/:filename"
     }
   }
 
