@@ -39,6 +39,28 @@ describe Paperclip::Storage::Eitheror do
     end
   end
 
+  describe '#exists?' do
+    context 'when attachment is on "either"' do
+      before { FileUtils.cp(source_image_path, primary_image_path) }
+      it 'returns true' do
+        expect(user.avatar.exists?).to be true
+      end
+    end
+
+    context 'when attachment is on "or"' do
+      before { FileUtils.cp(source_image_path, fallback_image_path) }
+      it 'returns true' do
+        expect(user.avatar.exists?).to be true
+      end
+    end
+
+    context "when attachment isn't anywhere" do
+      it 'returns false' do
+        expect(user.avatar.exists?).to be false
+      end
+    end
+  end
+
   context 'when deleting' do
     it 'deletes from both storages' do
       FileUtils.cp(source_image_path, primary_image_path)
