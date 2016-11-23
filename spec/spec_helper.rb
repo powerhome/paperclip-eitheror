@@ -1,5 +1,5 @@
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
-require "paperclip/paperclip-eitheror"
+require "paperclip-eitheror"
 
 require 'active_record'
 require 'paperclip'
