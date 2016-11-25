@@ -123,6 +123,54 @@ class User < ActiveRecord::Base
 end
 ```
 
+# Method aliasing/overriding
+
+Different storages provide different ways of accessing attachments.
+For instance, when using `:fog` storage, you have access to methods which only make sense to that particular storage.
+Or when you're migrating your assets from a `:filesystem` storage to a `:fog` storage, you might not want to go after every reference to `attachment.url` in your code in order to change it to `attachment.public_url`.
+
+`paperclip-eitheror` gives you the ability to provide an `:alias` key, which then will allow you to tell it how to behave when such scenario happens.
+
+For instance:
+
+```ruby
+has_attached_file :avatar, {
+  storage: :eitheror,
+  either: {
+    storage: :fog,
+    alias: {
+      url: :public_url
+    }
+  },
+  or: {
+    storage: :filesystem,
+  }
+}
+```
+
+Int he example above we're telling `paperclip-eitheror` that whenever `avatar.url` is called, the `:fog` storage will delegate it to `attachment.public_url`. Mapping `fog.url` to `fog.public_url` seems like a very straight-forward mapping.
+
+Not always mapping from one method to another is going to be that simple, you can write you own overrides by mapping a method to a `lambda`, like so:
+
+```ruby
+has_attached_file :avatar, {
+  storage: :eitheror,
+  either: {
+    storage: :fog,
+    alias: {
+      url: ->(either_storage, or_storage, attachment, *args) do
+        puts "Look, I can do whatever I want"
+      end
+    }
+  },
+  or: {
+    storage: :filesystem,
+  }
+}
+```
+
+The `lambda` will receive as parameters both storages (**either** and **or**), the attachment instance and any other arguments given when the method was called.
+
 ## Development
 
 After checking out the repo, run `bundle install` to install dependencies. Then, run `rake spec` to run the tests.
