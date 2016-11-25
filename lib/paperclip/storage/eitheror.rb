@@ -67,10 +67,6 @@ module Paperclip
         end
       end
 
-      def create_method(target, name, &block)
-        target.class.send(:define_method, name, &block)
-      end
-
       def define_aliases target, aliases = {}
         aliases.each do |name, value|
           block = is_callable?(value) ?
@@ -82,6 +78,10 @@ module Paperclip
 
       def is_callable?(o)
         o.respond_to?(:call)
+      end
+
+      def create_method(target, name, &block)
+        target.class.send(:define_method, name, &block)
       end
     end
   end
