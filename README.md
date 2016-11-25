@@ -1,4 +1,5 @@
 # Paperclip::Eitheror
+[![Build Status](https://travis-ci.org/powerhome/paperclip-eitheror.svg?branch=master)](https://travis-ci.org/powerhome/paperclip-eitheror)
 
 A [Paperclip](https://github.com/thoughtbot/paperclip/) Storage which allows you to use a secondary (called 'or') storage as a fallback.
 The purpose of this gem is to help us while a migrating our assets and uploads to a different place.
