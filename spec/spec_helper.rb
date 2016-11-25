@@ -28,13 +28,19 @@ class User < ActiveRecord::Base
     either: {
       storage: :filesystem,
       path: "spec/primary_storage/:filename",
-      url: "/url/primary_storage/:filename"
+      url: "/url/primary_storage/:filename",
+      alias: {
+        only_on_or: :either_handler
+      }
     },
     or: {
       storage: :filesystem,
       path: "spec/fallback_storage/:filename",
-      url: "/url/fallback_storage/:filename"
-    }
+      url: "/url/fallback_storage/:filename",
+      alias: {
+        only_on_either: :or_handler
+      }
+    },
   }
 
   do_not_validate_attachment_file_type :avatar

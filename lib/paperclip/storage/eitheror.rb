@@ -5,6 +5,9 @@ module Paperclip
         base.instance_eval do
           @either = Attachment.new(base.name, base.instance, base.options.merge(base.options[:either]))
           @or = Attachment.new(base.name, base.instance, base.options.merge(base.options[:or]))
+
+          define_aliases @either, base.options[:either][:alias]
+          define_aliases @or, base.options[:or][:alias]
         end
       end
 
@@ -61,6 +64,16 @@ module Paperclip
           @either
         else
           either_exists ? @either : @or
+        end
+      end
+
+      def create_method(target, name, &block)
+        target.class.send(:define_method, name, &block)
+      end
+
+      def define_aliases target, aliases = {}
+        aliases.each do |name, value|
+          create_method(target, name) { |*args| target.send(value, *args) }
         end
       end
     end
