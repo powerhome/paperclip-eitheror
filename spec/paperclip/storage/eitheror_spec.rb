@@ -91,6 +91,17 @@ describe Paperclip::Storage::Eitheror do
 
         user.avatar.only_on_or(:params)
       end
+
+      context 'and the alias is to a lambda' do
+        it 'calls the lambda with both storages and any extra arguments' do
+          user.avatar.either_lambda_alias(:param)
+
+          either_storage = user.avatar.instance_variable_get(:@either)
+          or_storage = avatar.instance_variable_get(:@or)
+
+          expect(User.instance_variable_get(:@either_lambda_called_with)).to eql [either_storage, or_storage, user.avatar, :param]
+        end
+      end
     end
   end
 
@@ -112,6 +123,17 @@ describe Paperclip::Storage::Eitheror do
           expect(or_storage).to receive(:or_handler).with(:param)
 
           user.avatar.only_on_either(:param)
+        end
+        
+        context 'and the alias is to a lambda' do
+          it 'calls the lambda with both storages and any extra arguments' do
+            user.avatar.either_lambda_alias(:param)
+
+            either_storage = user.avatar.instance_variable_get(:@either)
+            or_storage = avatar.instance_variable_get(:@or)
+
+            expect(User.instance_variable_get(:@either_lambda_called_with)).to eql [either_storage, or_storage, user.avatar, :param]
+          end
         end
       end
     end

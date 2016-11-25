@@ -73,8 +73,15 @@ module Paperclip
 
       def define_aliases target, aliases = {}
         aliases.each do |name, value|
-          create_method(target, name) { |*args| target.send(value, *args) }
+          block = is_callable?(value) ?
+            ->(*args) { value.call(@either, @or, self, *args) } :
+            ->(*args) { target.send(value, *args) }
+          create_method(target, name, &block)
         end
+      end
+
+      def is_callable?(o)
+        o.respond_to?(:call)
       end
     end
   end
