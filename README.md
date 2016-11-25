@@ -1,8 +1,9 @@
 # Paperclip::Eitheror
 [![Build Status](https://travis-ci.org/powerhome/paperclip-eitheror.svg?branch=master)](https://travis-ci.org/powerhome/paperclip-eitheror)
 
-A [Paperclip](https://github.com/thoughtbot/paperclip/) Storage which allows you to use a secondary (called 'or') storage as a fallback.
-The purpose of this gem is to help us while a migrating our assets and uploads to a different place.
+A [Paperclip](https://github.com/thoughtbot/paperclip/) Storage which supports a secondary (called 'or') storage as a fallback while using the primary one (called 'either').
+
+The purpose of this gem is to help us while migrating our assets to a different place, a better place <3
 
 Dependency versions are locked to the current versions we have running.
 
@@ -24,7 +25,7 @@ Or install it yourself as:
 
 ## Usage
 
-Given you have the gem installed and a some model, you need to configure your attachment with `storage: :eitheror`, and configurations for both the primary (`either`) and the fallback (`or`) storages,
+Given you have the gem installed and some model, you need to configure your attachment with `storage: :eitheror`, and set up the primary (`either`) and the secondary/fallback (`or`) storages:
 
 ```ruby
 has_attached_file :avatar, {
@@ -45,14 +46,74 @@ has_attached_file :avatar, {
   storage: :eitheror,
   either: {
     storage: :fog,
-    path: 'some_fog_path/:style/:filename'
+    path: ':attachment/:id/:style/:filename',
+    url: ':attachment/:id/:style/:filename'
   },
   or: {
     storage: :filesystem,
-    path: 'some_local_path/:class/:attachment/:style/:filename'
+    path: ':rails_root/public/attachments/:class/:attachment/:style/:filename'
   }
 }
 ```
+
+The configuration for each storage inherits whatever attributes are defined at the configuration top level config, and existing attributes may be overridden with storage specific values. For example:
+
+```ruby
+has_attached_file :avatar, {
+  storage: :eitheror,
+  url: '/api/v1/attachments/:attachment/:id/:style',
+  path: ':rails_root/public/attachments/:class/:attachment/:style/:filename',
+  either: {
+    storage: :fog,
+    path: ':attachment/:id/:style/:filename',
+    url: ':attachment/:id/:style/:filename'
+  },
+  or: {
+    storage: :filesystem,
+  }
+}
+```
+
+In the example above, the storage **or** will inherit the attributes `path` and `url` from the base configuration, while `either` will provide its own `path` and `url` attributes. The following configuration is equivalent:
+
+```ruby
+has_attached_file :avatar, {
+  storage: :eitheror,
+  either: {
+    storage: :fog,
+    path: ':attachment/:id/:style/:filename',
+    url: ':attachment/:id/:style/:filename'
+  },
+  or: {
+    storage: :filesystem,
+    url: '/api/v1/attachments/:attachment/:id/:style',
+    path: ':rails_root/public/attachments/:class/:attachment/:style/:filename',
+  }
+}
+```
+
+That is particularly useful when globally configuring `paparclip-eitheror`.
+
+# Global configuration
+
+On large codebases it might become very tedious and error prone to chase down all paperclip usages and adapt their configuration to use `paperclip-eitheror`. An alternative is to configure `paperclip` default options to use `paperclip-eitheror` as the default storage.
+
+```ruby
+# config/initializers/paperclip.rb
+
+Paperclip::Attachment.default_options[:storage] = :eitheror
+Paperclip::Attachment.default_options[:either] = {
+  storage: :fog,
+  path: ':attachment/:id/:style/:filename',
+  url: ':attachment/:id/:style/:filename',
+}
+
+Paperclip::Attachment.default_options[:or] = {
+  storage: :filesystem,
+}
+```
+
+Since storages inherit configuration from the base config, you would not have to change any of your existing models and in this case the **or** storage would inherit the configuration on your models acting as your existing storage.
 
 ## Development
 
