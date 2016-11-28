@@ -94,7 +94,7 @@ has_attached_file :avatar, {
 
 That is particularly useful when globally configuring `paparclip-eitheror`.
 
-# Global configuration
+## Global Configuration
 
 On large codebases it might become very tedious and error prone to chase down all paperclip usages and adapt their configuration to use `paperclip-eitheror`. An alternative is to configure `paperclip` default options to use `paperclip-eitheror` as the default storage.
 
@@ -114,6 +114,14 @@ Paperclip::Attachment.default_options[:or] = {
 ```
 
 Since storages inherit configuration from the base config, you would not have to change any of your existing models and in this case the **or** storage would inherit the configuration on your models acting as your existing storage.
+
+In case you need a particular model to **NOT** be affected by the global configuration, you can explicitly define the storage type you want the model to use as part of its `has_attached_file` options:
+
+```ruby
+class User < ActiveRecord::Base
+  has_attached_file :avatar, storage: :filesystem
+end
+```
 
 ## Development
 
