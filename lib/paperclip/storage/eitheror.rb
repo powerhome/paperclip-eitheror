@@ -6,8 +6,8 @@ module Paperclip
           @either = Attachment.new(base.name, base.instance, base.options.merge(base.options[:either]))
           @or = Attachment.new(base.name, base.instance, base.options.merge(base.options[:or]))
 
-          define_aliases @either, base.options[:either][:alias]
-          define_aliases @or, base.options[:or][:alias]
+          define_aliases @either, base.options[:either].fetch(:alias, {})
+          define_aliases @or, base.options[:or].fetch(:alias, {})
         end
       end
 

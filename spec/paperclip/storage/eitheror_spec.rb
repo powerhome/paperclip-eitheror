@@ -17,6 +17,11 @@ describe Paperclip::Storage::Eitheror do
     User.find(999)
   end
 
+  let(:user_with_storage_alias) do
+    ActiveRecord::Base.connection.execute("INSERT into users (id, avatar_file_name, avatar_content_type) values (998, 'image.jpg', 'image/jpg')")
+    UserWithStorageAlias.find(998)
+  end
+
   before(:each) do
     FileUtils.mkdir_p primary_storage_path
     FileUtils.mkdir_p fallback_storage_path
@@ -70,49 +75,49 @@ describe Paperclip::Storage::Eitheror do
 
   context 'when "either" is available' do
     before { FileUtils.cp(source_image_path, primary_image_path) }
-    subject(:avatar) { user.avatar }
+    subject(:avatar) { user_with_storage_alias.avatar }
 
     it 'deletes unknown call to "either" storage' do
       either_storage = double
       allow(either_storage).to receive(:exists?).and_return true
       expect(either_storage).to receive(:some_unknown_method).and_return('some response')
 
-      user.avatar.instance_variable_set(:@either, either_storage)
+      avatar.instance_variable_set(:@either, either_storage)
 
-      expect(user.avatar.some_unknown_method).to eq 'some response'
+      expect(avatar.some_unknown_method).to eq 'some response'
     end
 
     context 'and an alias is set' do
       it 'uses the aliased method' do
-        either_storage = user.avatar.instance_variable_get(:@either)
+        either_storage = avatar.instance_variable_get(:@either)
         either_storage.stub(:either_handler)
 
         expect(either_storage).to receive(:either_handler).with(:params)
 
-        user.avatar.only_on_or(:params)
+        avatar.only_on_or(:params)
       end
 
       context 'and the alias is to a lambda' do
         it 'calls the lambda with both storages and any extra arguments' do
-          user.avatar.either_lambda_alias(:param)
+          avatar.either_lambda_alias(:param)
 
-          either_storage = user.avatar.instance_variable_get(:@either)
+          either_storage = avatar.instance_variable_get(:@either)
           or_storage = avatar.instance_variable_get(:@or)
 
-          expect(User.instance_variable_get(:@either_lambda_called_with)).to eql [either_storage, or_storage, user.avatar, :param]
+          expect(UserWithStorageAlias.instance_variable_get(:@either_lambda_called_with)).to eql [either_storage, or_storage, avatar, :param]
         end
       end
     end
   end
 
   context 'when "either" is not available' do
-    subject(:avatar) { user.avatar }
+    subject(:avatar) { user_with_storage_alias.avatar }
     context 'but "or" is' do
       before(:each) { FileUtils.cp(source_image_path, fallback_image_path)}
 
       it 'fallsback to "or" storage' do
-        expect(user.avatar.path).to match fallback_storage_path
-        expect(user.avatar.url).to match fallback_storage_url
+        expect(avatar.path).to match fallback_storage_path
+        expect(avatar.url).to match fallback_storage_url
       end
 
       context 'and an alias is set on "or"' do
@@ -122,17 +127,17 @@ describe Paperclip::Storage::Eitheror do
 
           expect(or_storage).to receive(:or_handler).with(:param)
 
-          user.avatar.only_on_either(:param)
+          avatar.only_on_either(:param)
         end
-        
+
         context 'and the alias is to a lambda' do
           it 'calls the lambda with both storages and any extra arguments' do
-            user.avatar.either_lambda_alias(:param)
+            avatar.either_lambda_alias(:param)
 
-            either_storage = user.avatar.instance_variable_get(:@either)
+            either_storage = avatar.instance_variable_get(:@either)
             or_storage = avatar.instance_variable_get(:@or)
 
-            expect(User.instance_variable_get(:@either_lambda_called_with)).to eql [either_storage, or_storage, user.avatar, :param]
+            expect(UserWithStorageAlias.instance_variable_get(:@either_lambda_called_with)).to eql [either_storage, or_storage, avatar, :param]
           end
         end
       end
