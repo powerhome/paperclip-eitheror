@@ -141,6 +141,29 @@ describe Paperclip::Storage::Eitheror do
           end
         end
       end
+
+      context 'and :autosync is on' do
+        before do
+          options = avatar.instance_variable_get(:@options)
+          avatar.instance_variable_set(:@options, options.merge({autosync: true}))
+        end
+
+        it 'syncs the attachment' do
+          expect(avatar).to receive(:sync).and_call_original
+
+          expect(avatar.path).to match primary_storage_path
+          expect(avatar.url).to match primary_storage_url
+        end
+
+        context 'when #sync fails' do
+          before { allow(avatar).to receive(:sync).and_return false }
+
+          it 'fallsback to the "or" storage' do
+            expect(avatar.path).to match fallback_storage_path
+            expect(avatar.url).to match fallback_storage_url
+          end
+        end
+      end
     end
 
     it 'delegates unknown calls to "or" storage' do

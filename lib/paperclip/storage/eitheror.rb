@@ -72,7 +72,13 @@ module Paperclip
         if !(either_exists || or_exists)
           @either
         else
-          either_exists ? @either : @or
+          if either_exists
+            @either
+          elsif options[:autosync]
+            (sync && @either) || @or
+          else
+            @or
+          end
         end
       end
 
