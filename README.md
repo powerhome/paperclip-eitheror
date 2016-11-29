@@ -123,6 +123,20 @@ class User < ActiveRecord::Base
 end
 ```
 
+# `:autosync`
+
+You can configure `paperclip-eitheror` to automatically synchronize attachments from the **or** (fallback) storage to **either** (primary).
+
+When `:autosync` is set to `true`, whenever an attachment which exists only on **or** is accessed, the attachment will be synced to the primary storage and access (such as `path` and `url`) will be provided through the primary storage.
+
+```ruby
+has_attached_file :avatar, {
+  storage: :eitheror,
+  autosync: true,
+  ...
+}
+```
+
 # Method aliasing/overriding
 
 Different storages provide different ways of accessing attachments.

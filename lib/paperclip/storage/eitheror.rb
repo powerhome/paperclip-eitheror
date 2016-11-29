@@ -69,11 +69,9 @@ module Paperclip
         either_exists = @either.exists?
         or_exists = @or.exists?
 
-        if !(either_exists || or_exists)
-          @either
-        else
-          either_exists ? @either : @or
-        end
+        return @either if either_exists || !or_exists
+
+        options[:autosync] && sync ? @either : @or
       end
 
       def define_aliases target, aliases = {}
