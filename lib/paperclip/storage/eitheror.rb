@@ -70,11 +70,7 @@ module Paperclip
       end
 
       def usable_storage
-        either_exists = @either.exists?
-        or_exists = @or.exists?
-
-        return @either if either_exists || !or_exists
-
+        return @either if !@or.exists? || @either.exists?
         options[:autosync] && sync ? @either : @or
       end
 
