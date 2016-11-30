@@ -20,6 +20,10 @@ module Paperclip
         @either.exists?
       end
 
+      def syncable?
+        @or.exists?
+      end
+
       def path(style_name = default_style)
         usable_storage.path(style_name)
       end
@@ -66,11 +70,7 @@ module Paperclip
       end
 
       def usable_storage
-        either_exists = @either.exists?
-        or_exists = @or.exists?
-
-        return @either if either_exists || !or_exists
-
+        return @either if !@or.exists? || @either.exists?
         options[:autosync] && sync ? @either : @or
       end
 

@@ -90,7 +90,7 @@ describe Paperclip::Storage::Eitheror do
     context 'and an alias is set' do
       it 'uses the aliased method' do
         either_storage = avatar.instance_variable_get(:@either)
-        either_storage.stub(:either_handler)
+        allow(either_storage).to receive(:either_handler)
 
         expect(either_storage).to receive(:either_handler).with(:params)
 
@@ -123,7 +123,7 @@ describe Paperclip::Storage::Eitheror do
       context 'and an alias is set on "or"' do
         it 'uses the aliased method' do
           or_storage = avatar.instance_variable_get(:@or)
-          or_storage.stub(:or_handler)
+          allow(or_storage).to receive(:or_handler)
 
           expect(or_storage).to receive(:or_handler).with(:param)
 
@@ -197,6 +197,17 @@ describe Paperclip::Storage::Eitheror do
     context 'when asset is in the "either" storage' do
       before { FileUtils.cp(source_image_path, primary_storage_path) }
       it { expect(user.avatar).to be_synced }
+    end
+  end
+
+  describe '#syncable?' do
+    context 'when asset is present in the "or" storage' do
+      before { FileUtils.cp(source_image_path, fallback_storage_path) }
+      it { expect(user.avatar).to be_syncable }
+    end
+
+    context 'when asset is not present in the "or" storage' do
+      it { expect(user.avatar).to_not be_syncable }
     end
   end
 end
