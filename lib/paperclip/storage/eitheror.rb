@@ -20,6 +20,10 @@ module Paperclip
         @either.exists?
       end
 
+      def syncable?
+        @or.exists?
+      end
+
       def path(style_name = default_style)
         usable_storage.path(style_name)
       end

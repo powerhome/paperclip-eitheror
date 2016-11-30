@@ -199,4 +199,15 @@ describe Paperclip::Storage::Eitheror do
       it { expect(user.avatar).to be_synced }
     end
   end
+
+  describe '#syncable?' do
+    context 'when asset is present in the "or" storage' do
+      before { FileUtils.cp(source_image_path, fallback_storage_path) }
+      it { expect(user.avatar).to be_syncable }
+    end
+
+    context 'when asset is not present in the "or" storage' do
+      it { expect(user.avatar).to_not be_syncable }
+    end
+  end
 end
