@@ -12,19 +12,15 @@ describe Paperclip::Storage::Eitheror do
   let(:primary_image_path) { "#{primary_storage_path}/image.jpg" }
   let(:fallback_image_path) { "#{fallback_storage_path}/image.jpg" }
 
-  let(:user) do
-    ActiveRecord::Base.connection.execute("INSERT into users (id, avatar_file_name, avatar_content_type) values (999, 'image.jpg', 'image/jpg')")
-    User.find(999)
-  end
-
-  let(:user_with_storage_alias) do
-    ActiveRecord::Base.connection.execute("INSERT into users (id, avatar_file_name, avatar_content_type) values (998, 'image.jpg', 'image/jpg')")
-    UserWithStorageAlias.find(998)
-  end
+  let(:user) { User.last }
+  let(:user_with_storage_alias) { UserWithStorageAlias.last }
+  let(:user_with_enabled_either_storage) { UserWithEnabledEitherStorage.last }
+  let(:user_with_disabled_either_storage) { UserWithDisabledEitherStorage.last }
 
   before(:each) do
     FileUtils.mkdir_p primary_storage_path
     FileUtils.mkdir_p fallback_storage_path
+    User.create avatar_file_name: 'image.jpg', avatar_content_type: 'image/jpg'
   end
 
   after(:each) do
@@ -73,16 +69,55 @@ describe Paperclip::Storage::Eitheror do
     end
   end
 
+  context 'when asset is present in both storages' do
+    before { FileUtils.cp(source_image_path, primary_image_path) }
+    before { FileUtils.cp(source_image_path, fallback_image_path) }
+
+    context 'and "either" storage is disabled' do
+      subject(:avatar) { user_with_disabled_either_storage.avatar }
+
+      it 'uses the "or" storage instead' do
+        or_storage = avatar.instance_variable_get(:@or)
+
+        usable_storage = avatar.send(:usable_storage)
+
+        expect(usable_storage).to eq or_storage
+      end
+    end
+
+    context 'and "either" storage is enabled' do
+      subject(:avatar) { user_with_enabled_either_storage.avatar }
+
+      it 'uses the "either" storage' do
+        either_storage = avatar.instance_variable_get(:@either)
+
+        usable_storage = avatar.send(:usable_storage)
+
+        expect(usable_storage).to eq either_storage
+      end
+    end
+
+    context 'and "either" storage is enabled by default' do
+      subject(:avatar) { user.avatar }
+
+      it 'uses the "either" storage' do
+        either_storage = avatar.instance_variable_get(:@either)
+
+        usable_storage = avatar.send(:usable_storage)
+
+        expect(usable_storage).to eq either_storage
+      end
+    end
+  end
+
   context 'when "either" is available' do
     before { FileUtils.cp(source_image_path, primary_image_path) }
     subject(:avatar) { user_with_storage_alias.avatar }
 
-    it 'deletes unknown call to "either" storage' do
-      either_storage = double
-      allow(either_storage).to receive(:exists?).and_return true
-      expect(either_storage).to receive(:some_unknown_method).and_return('some response')
+    it 'delegates unknown calls on the model to the "either" storage' do
+      either_storage = avatar.instance_variable_get(:@either)
 
-      avatar.instance_variable_set(:@either, either_storage)
+      allow(either_storage).to receive(:some_unknown_method).and_return('some response')
 
       expect(avatar.some_unknown_method).to eq 'some response'
     end
