@@ -77,7 +77,7 @@ describe Paperclip::Storage::Eitheror do
     before { FileUtils.cp(source_image_path, primary_image_path) }
     subject(:avatar) { user_with_storage_alias.avatar }
 
-    it 'deletes unknown call to "either" storage' do
+    it 'delegates unknown calls to "either" storage' do
       either_storage = double
       allow(either_storage).to receive(:exists?).and_return true
       expect(either_storage).to receive(:some_unknown_method).and_return('some response')
