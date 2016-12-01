@@ -1,4 +1,5 @@
 # Paperclip::Eitheror
+
 [![Build Status](https://travis-ci.org/powerhome/paperclip-eitheror.svg?branch=master)](https://travis-ci.org/powerhome/paperclip-eitheror)
 
 A [Paperclip](https://github.com/thoughtbot/paperclip/) Storage which supports a secondary (called 'or') storage as a fallback while using the primary one (called 'either').
@@ -123,7 +124,7 @@ class User < ActiveRecord::Base
 end
 ```
 
-# `:autosync`
+## The `:autosync` Option
 
 You can configure `paperclip-eitheror` to automatically synchronize attachments from the **or** (fallback) storage to **either** (primary).
 
@@ -137,7 +138,30 @@ has_attached_file :avatar, {
 }
 ```
 
-# Method aliasing/overriding
+## Disabling "Either": The `enabled: false` Option
+
+In case you need to set up `paperclip-eitheror` on your app, but are not yet ready to enable the primary storage, you may disable it by using `enabled: false` in the **either** options list, as follows:
+
+```ruby
+has_attached_file :avatar, {
+  storage: :eitheror,
+  either: {
+    storage: :fog,
+    enabled: false,
+    path: ':attachment/:id/:style/:filename',
+    url: ':attachment/:id/:style/:filename'
+  },
+  or: {
+    storage: :filesystem,
+    url: '/api/v1/attachments/:attachment/:id/:style',
+    path: ':rails_root/public/attachments/:class/:attachment/:style/:filename',
+  }
+}
+```
+
+That comes specially handy if you need to enable/disable the primary storage based off a config flag, allowing, for instance, the primary storage to be disabled on a per-environment basis.
+
+## Method Aliasing/Overriding
 
 Different storages provide different ways of accessing attachments.
 For instance, when using `:fog` storage, you have access to methods which only make sense to that particular storage.
