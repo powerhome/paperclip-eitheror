@@ -29,6 +29,20 @@ describe Paperclip::Storage::Eitheror do
     FileUtils.rm_rf(fallback_storage_path)
   end
 
+  describe 'enabled option' do
+    it 'can be set directly' do
+      expect(user_with_enabled_either_storage.avatar).to be_either_enabled
+      expect(user_with_disabled_either_storage.avatar).to_not be_either_enabled
+    end
+
+    it 'can be a proc' do
+      user = UserWithAttributeEnabledEitherStorage.new(eitheror: true)
+      expect(user.avatar).to be_either_enabled
+      user = UserWithAttributeEnabledEitherStorage.new(eitheror: false)
+      expect(user.avatar).to_not be_either_enabled
+    end
+  end
+
   context 'when creating a new attachment' do
     it 'uses the primary storage' do
       user.avatar = File.open(source_image_path)

@@ -14,8 +14,9 @@ ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:"
 ActiveRecord::Schema.suppress_messages do
   ActiveRecord::Schema.define version: 0 do
     create_table :users, force: true do |t|
-      t.string  :avatar_file_name
-      t.string  :avatar_content_type
+      t.boolean :eitheror
+      t.string :avatar_file_name
+      t.string :avatar_content_type
     end
   end
 end

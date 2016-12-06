@@ -1,7 +1,7 @@
 module Paperclip
   module Storage
     module Eitheror
-      def self.extended base
+      def self.extended(base)
         base.instance_eval do
           base.options[:either][:enabled] = true if base.options[:either][:enabled].nil?
           @either = Attachment.new(base.name, base.instance, base.options.merge(base.options[:either]))
@@ -65,7 +65,17 @@ module Paperclip
         usable_storage.send(method, *args)
       end
 
+      def either_enabled?
+        callable_option(@either, :enabled)
+      end
+
       private
+
+      def callable_option(attachment, key)
+        option = attachment.options[key]
+        option.respond_to?(:call) ? option.call(attachment) : option
+      end
+
       def all_storages
         [@either, @or]
       end
