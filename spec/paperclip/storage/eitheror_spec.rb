@@ -37,9 +37,13 @@ describe Paperclip::Storage::Eitheror do
 
     it 'can be a proc' do
       user = UserWithAttributeEnabledEitherStorage.new(eitheror: true)
+      either_storage = user.avatar.instance_variable_get(:@either)
       expect(user.avatar).to be_either_enabled
+      expect(user.avatar.send(:usable_storage)).to eq either_storage
       user = UserWithAttributeEnabledEitherStorage.new(eitheror: false)
+      or_storage = user.avatar.instance_variable_get(:@or)
       expect(user.avatar).to_not be_either_enabled
+      expect(user.avatar.send(:usable_storage)).to eq or_storage
     end
   end
 

@@ -81,7 +81,7 @@ module Paperclip
       end
 
       def usable_storage
-        return @or unless @either.options[:enabled]
+        return @or unless either_enabled?
         return @either if !@or.exists? || @either.exists?
         options[:autosync] && sync ? @either : @or
       end
