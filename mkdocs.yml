@@ -1,0 +1,8 @@
+
+site_name: Paperclip EitherOr
+site_description: Paperclip EitherOr Documentation
+nav:
+  - "Home": "README.md"
+  - "Code of Conduct": "CODE_OF_CONDUCT.md"
+plugins:
+  - techdocs-core
